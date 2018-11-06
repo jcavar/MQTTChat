@@ -65,16 +65,23 @@
                            auth:false
                            user:nil
                            pass:nil
+                           will:YES
                       willTopic:[NSString stringWithFormat:@"%@/%@-%@",
                                  self.base,
                                  [UIDevice currentDevice].name,
                                  self.tabBarItem.title]
-                           will:[@"offline" dataUsingEncoding:NSUTF8StringEncoding]
+                           willMsg:[@"offline" dataUsingEncoding:NSUTF8StringEncoding]
                         willQos:MQTTQosLevelExactlyOnce
-                 willRetainFlag:FALSE
-                   withClientId:nil];
+                 willRetainFlag:NO
+                   withClientId:nil
+                 securityPolicy:nil
+                   certificates:nil
+                  protocolLevel:MQTTProtocolVersion311
+                 connectHandler:^(NSError *error) {
+                 }];
     } else {
-        [self.manager connectToLast];
+        [self.manager connectToLast:^(NSError *error) {
+        }];
     }
     
     /*
@@ -155,7 +162,8 @@
      * MQTTClient: connect to same broker again
      */
     
-    [self.manager connectToLast];
+    [self.manager connectToLast:^(NSError *error) {
+    }];
 }
 
 - (IBAction)disconnect:(id)sender {
@@ -169,8 +177,8 @@
                             self.tabBarItem.title]
                        qos:MQTTQosLevelExactlyOnce
                     retain:FALSE];
-    [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.0]];
-    [self.manager disconnect];
+    [self.manager disconnectWithDisconnectHandler:^(NSError *error) {
+    }];
 }
 
 - (IBAction)send:(id)sender {
